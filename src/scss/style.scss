@@ -1,3 +1,36 @@
 body {
-  background: aqua;
+  display: flex;
+  background-color: aqua;
+  justify-content: center;
+}
+
+.main-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 2px solid black;
+  width: 1000px;
+  text-align: center;
+  div.game-wrapper {
+    display: flex;
+    border: 1px solid black;
+    flex-direction: column;
+    width: 416px;
+    div.row-wrapper {
+      display: flex;
+      border: 1px solid black;
+      div.box {
+        height: 50px;
+        width: 50px;
+        border: 1px solid red;
+        padding: 0;
+      }
+    }
+  }
+
+  .score-box {
+    width: 416px;
+    display: flex;
+    align-items: flex-start;
+  }
 }
