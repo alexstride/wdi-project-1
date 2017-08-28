@@ -23,6 +23,14 @@ const gridObject = {
       resultArray.push(row);
     }
     this.valueArray = resultArray;
+    console.log('Initial valueArray: ', this.valueArray);
+    let initialMatches = this.checkGrid();
+    while (initialMatches.length > 0) {
+      console.log('Detected following matches: ', initialMatches);
+      this.valueArray = this.generateNewValueArray(initialMatches);
+      console.log('New valueArray: ', this.valueArray);
+      initialMatches = this.checkGrid();
+    }
   },
 
   initializeElementArray: function() {
@@ -44,14 +52,14 @@ const gridObject = {
     return this.valueArray.reduce((flatArray, array) => flatArray.concat(array), []);
   },
 
-  getColumn: function(x) {
+  getColumn: function(x, grid=this.valueArray) {
     //takes in a value for x and returns and array representing one column of the grid array
-    return this.valueArray.map(row => row[x]);
+    return grid.map(row => row[x]);
   },
 
-  getRow: function(y) {
+  getRow: function(y, grid=this.valueArray) {
     //takes in a value for y and returns and array representing one row of the grid array
-    return this.valueArray[y];
+    return grid[y];
   },
 
   checkRow: function(row) {
@@ -84,13 +92,13 @@ const gridObject = {
     return result;
   },
 
-  checkGrid() {
+  checkGrid(grid=this.valueArray) {
     //returns an array of coordinates for the cells which are part of a match.
     let result = [];
     //this loops over the rows, but will also check the columns at the same time!
     for (let rowColNumber = 0; rowColNumber < this.width; rowColNumber++) {
-      result = result.concat(this.checkRow(this.getRow(rowColNumber)).map((x) => [x, rowColNumber]));
-      result = result.concat(this.checkRow(this.getColumn(rowColNumber)).map((y) => [rowColNumber, y]));
+      result = result.concat(this.checkRow(this.getRow(rowColNumber, grid)).map((x) => [x, rowColNumber]));
+      result = result.concat(this.checkRow(this.getColumn(rowColNumber, grid)).map((y) => [rowColNumber, y]));
     }
     return result;
   },
@@ -112,8 +120,8 @@ const gridObject = {
     for (let i = 0; i < this.width; i++) {
       //console.log('Value of coordinateArray: ', coordinateArray);
       const positionsToRemove = coordinateArray.filter((coordinate) => coordinate[0] === i).map((coordinate) => coordinate[1]);
-      console.log('positions being removed from column: ');
-      console.log(positionsToRemove);
+      // console.log('positions being removed from column: ');
+      // console.log(positionsToRemove);
       columns.push(this.updateColumnForMatch(gridObject.getColumn(i), positionsToRemove));
     }
 
@@ -142,7 +150,7 @@ const moveObject = {
 
   triggerMoveEvent: function() {
     //notify the grid object that there is now a change that needs to be handled and send through the coordinates of the squares which are being moved.
-    $(document).trigger('userMove', [{x: $(this.activeBox1).data('x'), y: $(this.activeBox1).data('y')}, {x: $(this.activeBox2).data('x'), y: $(this.activeBox2).data('y')}]);
+    $(document).trigger('userMove', [[$(this.activeBox1).data('x'), $(this.activeBox1).data('y')], [$(this.activeBox2).data('x'), $(this.activeBox2).data('y')]]);
 
   },
   deactivateBoxes: function() {
@@ -156,6 +164,41 @@ const moveObject = {
   }
 }; //______END MOVE OBJECT_______________________________________
 
+const matchHandler = {
+  checkMove: function(pos1, pos2) {
+    console.log(`Checking move to swap [${pos1[0]},${pos1[1]}] and [${pos2[0]},${pos2[1]}]`);
+    const tempGrid = clone2D(gridObject.valueArray);
+    const buffer = tempGrid[pos1[1]][pos1[0]];
+    tempGrid[pos1[1]][pos1[0]] = tempGrid[pos2[1]][pos2[0]];
+    tempGrid[pos2[1]][pos2[0]] = buffer;
+    const newMatch = gridObject.checkGrid(tempGrid);
+    if (newMatch.length > 0) {
+      return newMatch;
+    } else {
+      return null;
+    }
+  },
+
+  commitMatch: function(pos1, pos2, matchCoordinates) {
+    console.log('matchHandler.commitMatch not yet implemented');
+  },
+
+  changeDisplay: function(pos1, pos2, matchCoordinates) {
+    console.log('matchHandler.changeDisplay not yet implemented')
+  },
+
+  processMove: function(event, pos1, pos2) {
+    //Note that 'this' will be the moveEvent for this function.
+    const moveOutcome = matchHandler.checkMove(pos1, pos2);
+    if (moveOutcome) {
+      //send instructions to the screen to update display.
+      matchHandler.changeDisplay(pos1, pos2, moveOutcome);
+      //commit the move to the back-end object.
+      matchHandler.commitMatch(pos1, pos2, moveOutcome);
+    }
+  }
+};
+
 //This function needs to sit in the global scope as it inherits its context from the click event.
 const processClick = function(clickEvent) {
   if (!moveObject.activeBox1) {
@@ -168,8 +211,11 @@ const processClick = function(clickEvent) {
     }
     moveObject.deactivateBoxes();
   }
-
 };
+
+function clone2D(oldArray) {
+  return oldArray.map(element => element.slice());
+}
 
 $(function() {
   gridObject.initializeValueArray();
@@ -177,18 +223,18 @@ $(function() {
   gridObject.initializeColors();
   gridObject.$elementArray.on('click', processClick);
 
-  const matches = gridObject.checkGrid();
-  console.log('Matches found in initial array: ');
-  console.log(matches);
-
-  console.log('Old grid: ');
-  console.log(gridObject.valueArray);
-  console.log('New grid: ');
-  console.log(gridObject.generateNewValueArray(matches));
-  // $(document).on('userMove', (e, pos1, pos2) => {
-  //   console.log('User wants to move', pos1, pos2);
-  // });
+  $(document).on('userMove', matchHandler.processMove);
   // $(document).on('matchMade', (e, coordinates) => {
   //   console.log('Match detected', coordinates);
   // });
+
+  ////Some code to visualise the creation of a new gridObject
+  // const matches = gridObject.checkGrid();
+  // console.log('Matches found in initial array: ');
+  // console.log(matches);
+  //
+  // console.log('Old grid: ');
+  // console.log(gridObject.valueArray);
+  // console.log('New grid: ');
+  // console.log(gridObject.generateNewValueArray(matches));
 });
