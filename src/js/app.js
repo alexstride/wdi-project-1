@@ -75,21 +75,60 @@ const gridObject = {
         currLength +=1;
       }
     }
+    //This handles the situation where a match ends at the end of a row.
+    if (currLength > 2) {
+      for (let i = currLength; i > 0; i--) {
+        result.push(this.width - i);
+      }
+    }
     return result;
   },
 
   checkGrid() {
     //returns an array of coordinates for the cells which are part of a match.
-    console.log('NOTE!: Only currently checking for matches in rows, not columns');
     let result = [];
     //this loops over the rows, but will also check the columns at the same time!
     for (let rowColNumber = 0; rowColNumber < this.width; rowColNumber++) {
       result = result.concat(this.checkRow(this.getRow(rowColNumber)).map((x) => [x, rowColNumber]));
       result = result.concat(this.checkRow(this.getColumn(rowColNumber)).map((y) => [rowColNumber, y]));
     }
+    return result;
+  },
 
+  updateColumnForMatch: function(column, positionArray) {
+    const newColumn = [];
+    positionArray.forEach(() => {
+      newColumn.push(Math.floor(Math.random()*this.colorArray.length));
+    });
+    column.filter((element, index) => positionArray.indexOf(index) === -1).forEach((element) => {
+      newColumn.push(element);
+    });
+    return newColumn;
+  },
+
+  generateNewValueArray: function(coordinateArray) {
+    //Build a new grid object, column by column
+    const columns = [];
+    for (let i = 0; i < this.width; i++) {
+      //console.log('Value of coordinateArray: ', coordinateArray);
+      const positionsToRemove = coordinateArray.filter((coordinate) => coordinate[0] === i).map((coordinate) => coordinate[1]);
+      console.log('positions being removed from column: ');
+      console.log(positionsToRemove);
+      columns.push(this.updateColumnForMatch(gridObject.getColumn(i), positionsToRemove));
+    }
+
+    //Now need to transpose the array, because it should be an array of rows.
+    const result = [];
+    for(let j = 0; j < this.height; j++) {
+      const newRow = [];
+      for(let k = 0; k < this.width; k ++) {
+        newRow.push(columns[k][j]);
+      }
+      result.push(newRow);
+    }
     return result;
   }
+
 }; //______END GRID OBJECT_______________________________________
 
 //________________MOVE OBJECT_______________________________
@@ -137,7 +176,19 @@ $(function() {
   gridObject.initializeElementArray();
   gridObject.initializeColors();
   gridObject.$elementArray.on('click', processClick);
-  $(document).on('userMove', (e, pos1, pos2) => {
-    console.log('User wants to move', pos1, pos2);
-  });
+
+  const matches = gridObject.checkGrid();
+  console.log('Matches found in initial array: ');
+  console.log(matches);
+
+  console.log('Old grid: ');
+  console.log(gridObject.valueArray);
+  console.log('New grid: ');
+  console.log(gridObject.generateNewValueArray(matches));
+  // $(document).on('userMove', (e, pos1, pos2) => {
+  //   console.log('User wants to move', pos1, pos2);
+  // });
+  // $(document).on('matchMade', (e, coordinates) => {
+  //   console.log('Match detected', coordinates);
+  // });
 });
