@@ -2,6 +2,7 @@ const COLORS = ['#5679f7', '#f78a0e', '#d6d6d6', '#d60202', '#8f14d1', '#13c600'
 const WIDTH = 8;
 const HEIGHT = WIDTH;
 
+//________________GRID OBJECT_______________________________
 const gridObject = {
   colorArray: COLORS,
   width: WIDTH,
@@ -39,11 +40,59 @@ const gridObject = {
   },
 
   returnFlat: function() {
+    //Returns a flattened copy of the entire grid object.
     return this.valueArray.reduce((flatArray, array) => flatArray.concat(array), []);
+  },
+
+  getColumn: function(x) {
+    //takes in a value for x and returns and array representing one column of the grid array
+    return this.valueArray.map(row => row[x]);
+  },
+
+  getRow: function(y) {
+    //takes in a value for y and returns and array representing one row of the grid array
+    return this.valueArray[y];
+  },
+
+  checkRow: function(row) {
+    //will return the indices of the elements which are part of a valid match
+    const result = [];
+    let currLength = 1;
+    let lastSeen = null;
+    let currValue = null;
+    for (const index in row) {
+      currValue = row[index];
+      if (currValue !== lastSeen) {
+        //if there is a current match stored, push it into the result array.
+        if (currLength > 2) {
+          for (let i = currLength; i > 0; i--) {
+            result.push(index - i);
+          }
+        }
+        lastSeen = currValue;
+        currLength =  1;
+      } else { //i.e. in the case where the current value is the same as the last seen value
+        currLength +=1;
+      }
+    }
+    return result;
+  },
+
+  checkGrid() {
+    //returns an array of coordinates for the cells which are part of a match.
+    console.log('NOTE!: Only currently checking for matches in rows, not columns');
+    let result = [];
+    //this loops over the rows, but will also check the columns at the same time!
+    for (let rowColNumber = 0; rowColNumber < this.width; rowColNumber++) {
+      result = result.concat(this.checkRow(this.getRow(rowColNumber)).map((x) => [x, rowColNumber]));
+      result = result.concat(this.checkRow(this.getColumn(rowColNumber)).map((y) => [rowColNumber, y]));
+    }
+
+    return result;
   }
+}; //______END GRID OBJECT_______________________________________
 
-}; //End of the gridObject declaration
-
+//________________MOVE OBJECT_______________________________
 //Creating a Move object, which can be created for each move the user wants to make.
 const moveObject = {
   activeBox1: null,
@@ -66,13 +115,11 @@ const moveObject = {
       this.activeBox2 = null;
     }, 0);
   }
-}; //End of the moveObject
+}; //______END MOVE OBJECT_______________________________________
 
 //This function needs to sit in the global scope as it inherits its context from the click event.
 const processClick = function(clickEvent) {
-  console.log(moveObject.activeBox1);
   if (!moveObject.activeBox1) {
-    console.log('Setting active box 1');
     moveObject.activeBox1 = clickEvent.target;
     $(clickEvent.target).text('CSS');
   } else {
