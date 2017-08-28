@@ -38,8 +38,8 @@ const gridObject = {
     //give each element an id number, from 0 to 63.
     for (let i = 0; i < this.$elementArray.length; i ++) {
       $(this.$elementArray[i]).attr('id', i).css({
-        'top': `${Math.floor(i/8) * 52}px`,
-        'left': `${(i%8) * 52}px`
+        'top': `${(Math.floor(i/8) * 54) + 2}px`,
+        'left': `${((i%8) * 54) + 2}px`
       });
     }
     //assign each element a top and left position to put it in the right place in the grid.
