@@ -1,3 +1,5 @@
+$box-width: 50px;
+
 body {
   display: flex;
   background-color: white;
@@ -11,20 +13,18 @@ body {
   width: 1000px;
   text-align: center;
   div.game-wrapper {
-    display: flex;
+    position: relative;
     border: 1px solid black;
     margin: 20px auto;
-    flex-direction: column;
     width: 416px;
-    div.row-wrapper {
-      display: flex;
-      div.box {
-        height: 50px;
-        width: 50px;
-        border: 1px solid black;
-        padding: 0;
-      }
+    div.box {
+      position: absolute;
+      height: $box-width;
+      width: $box-width;
+      border: 1px solid black;
+      padding: 0;
     }
+
   }
 
   .score-box {
