@@ -11,6 +11,35 @@ const gridObject = {
   $elementArray: null, //1D array of .box elements on the page
   activeBox1: null,
   activeBox2: null,
+  coord2Index: function(coordinate) {
+    return (coordinate[1]*this.width) + (coordinate[0]);
+  },
+
+  getElementByCoordinate: function(coord) {
+    return this.$elementArray[this.coord2Index(coord)];
+  },
+
+  setBoxPosition: function($box, coordinate) {
+    //box: jquery element
+    $box.css({
+      'top': `${(coordinate[1] * 54) + 2}px`,
+      'left': `${(coordinate[0]* 54) + 2}px`
+    });
+  },
+
+  swapSquares: function(coordinate1, coordinate2) {
+    console.log('Swapping squares');
+    const $box1 = $(this.getElementByCoordinate(coordinate1));
+    const $box2 = $(this.getElementByCoordinate(coordinate2));
+    const dataId1 = $box1.attr('data-id');
+    const dataId2 = $box2.attr('data-id');
+    $box1.attr('data-id', dataId2);
+    $box1.css('background-color', this.colorArray[dataId2]);
+    $box2.attr('data-id', dataId1);
+    $box2.css('background-color', this.colorArray[dataId1]);
+    // this.setBoxPosition(box1, coordinate2);
+    // this.setBoxPosition(box2, coordinate1);
+  },
 
   initializeValueArray: function () {
     //A function to create a new grid object (array of arrays) using the dimensions defined in args.
@@ -38,8 +67,8 @@ const gridObject = {
     //give each element an id number, from 0 to 63.
     for (let i = 0; i < this.$elementArray.length; i ++) {
       $(this.$elementArray[i]).attr('id', i).css({
-        'top': `${(Math.floor(i/8) * 54) + 2}px`,
-        'left': `${((i%8) * 54) + 2}px`
+        'top': `${(Math.floor(i/this.width) * 54) + 2}px`,
+        'left': `${((i%this.width) * 54) + 2}px`
       });
     }
     //assign each element a top and left position to put it in the right place in the grid.
@@ -111,7 +140,10 @@ const gridObject = {
     return result;
   },
 
-  updateColumnForMatch: function(column, positionArray) {
+  updateColumnForMatch: function(column, positionArray, newValues) {
+    //column: the values from the old column
+    //positionArray: An array of the positions within the column to be removed.
+    //newValues: An array of randomly generated new values to begin the column with. ORDER IMPORTANT
     const newColumn = [];
     positionArray.forEach(() => {
       newColumn.push(Math.floor(Math.random()*this.colorArray.length));
@@ -123,7 +155,7 @@ const gridObject = {
   },
 
   generateNewValueArray: function(coordinateArray) {
-    //Build a new grid object, column by column
+
     const columns = [];
     for (let i = 0; i < this.width; i++) {
       //console.log('Value of coordinateArray: ', coordinateArray);
@@ -143,6 +175,22 @@ const gridObject = {
       result.push(newRow);
     }
     return result;
+  },
+
+  generateWithFrontEnd: function(coordinateArray) {
+    //Build a new grid object, updating the front end along the way.
+    //coordinateArray: an array of the coordinates of cells which have been matched and need to be removed.
+
+    //Go through the columns and add the newly generated squares to the top of each column.
+    const columns = [];
+    for (let i = 0; i < this.width; i++) {
+      //console.log('Value of coordinateArray: ', coordinateArray);
+      const positionsToRemove = coordinateArray.filter((coordinate) => coordinate[0] === i).map((coordinate) => coordinate[1]);
+      // console.log('positions being removed from column: ');
+      // console.log(positionsToRemove);
+      const newBoxes =
+      columns.push(this.updateColumnForMatch(gridObject.getColumn(i), positionsToRemove));
+    }
   }
 
 }; //______END GRID OBJECT_______________________________________
@@ -164,22 +212,26 @@ const moveObject = {
   deactivateBoxes: function() {
     //Using a setTimeout of 0 to ensure that this stage cannot be queued to happen before the information about the clicked squares has been read from the DOM.
     window.setTimeout(() => {
-      $(this.activeBox1).text('');
+      $(this.activeBox1).removeClass('selected');
       this.activeBox1 = null;
-      $(this.activeBox2).text('');
+      $(this.activeBox2).removeClass('selected');
       this.activeBox2 = null;
     }, 0);
   }
 }; //______END MOVE OBJECT_______________________________________
 
+//________________MATCH HANDLER_______________________________
 const matchHandler = {
-  checkMove: function(pos1, pos2) {
-    console.log(`Checking move to swap [${pos1[0]},${pos1[1]}] and [${pos2[0]},${pos2[1]}]`);
-    const tempGrid = clone2D(gridObject.valueArray);
-    const buffer = tempGrid[pos1[1]][pos1[0]];
-    tempGrid[pos1[1]][pos1[0]] = tempGrid[pos2[1]][pos2[0]];
-    tempGrid[pos2[1]][pos2[0]] = buffer;
-    const newMatch = gridObject.checkGrid(tempGrid);
+  pairSwappedArray: null,
+  pos1: null,
+  pos2: null,
+  checkMove: function() {
+    console.log(`Checking move to swap [${this.pos1[0]},${this.pos1[1]}] and [${this.pos2[0]},${this.pos2[1]}]`);
+    this.pairSwappedArray = clone2D(gridObject.valueArray);
+    const buffer = this.pairSwappedArray[this.pos1[1]][this.pos1[0]];
+    this.pairSwappedArray[this.pos1[1]][this.pos1[0]] = this.pairSwappedArray[this.pos2[1]][this.pos2[0]];
+    this.pairSwappedArray[this.pos2[1]][this.pos2[0]] = buffer;
+    const newMatch = gridObject.checkGrid(this.pairSwappedArray);
     if (newMatch.length > 0) {
       return newMatch;
     } else {
@@ -187,37 +239,60 @@ const matchHandler = {
     }
   },
 
-  commitMatch: function(pos1, pos2, matchCoordinates) {
-    console.log('matchHandler.commitMatch not yet implemented');
+  commitMatch: function(matchCoordinates) {
+    //Should not be called independently of changeDisplay
+    console.log('Committing a match on the following coordinates: ', matchCoordinates);
+    console.assert(this.pairSwappedArray);
+    console.log('matchHandler.commitMatch needs testing!');
+
+    //uses the updateGrid method of the gridObject to update the main grid.
+    //FLAWED because squares not swapped: gridObject.valueArray = gridObject.generateNewValueArray(matchCoordinates);
+
+    //swap around the squares on the board
+    gridObject.swapSquares(this.pos1, this.pos2);
+
+    //Add the new squares to the top of the relevant rows, with suitable positions.
+
+    //Burn the matched squares on the board.
+
+    //Update the positions of all of the squares in the changed columns, so that they fall and settle in the right places.
+    //
   },
 
-  changeDisplay: function(pos1, pos2, matchCoordinates) {
-    console.log('matchHandler.changeDisplay not yet implemented')
+  changeDisplay: function(pos1, pos2, matchCoordinates, $arrayOfBoxes) {
+    //Should not be called independently of commitMatch!
+    console.log('matchHandler.changeDisplay not yet implemented');
+
   },
 
   processMove: function(event, pos1, pos2) {
     //Note that 'this' will be the moveEvent for this function.
+    matchHandler.pos1 = pos1;
+    matchHandler.pos2 = pos2;
     const moveOutcome = matchHandler.checkMove(pos1, pos2);
     if (moveOutcome) {
       //send instructions to the screen to update display.
-      matchHandler.changeDisplay(pos1, pos2, moveOutcome);
+      matchHandler.changeDisplay(moveOutcome);
       //commit the move to the back-end object.
-      matchHandler.commitMatch(pos1, pos2, moveOutcome);
+      matchHandler.commitMatch(moveOutcome);
     }
   }
-};
+}; //____________END MATCH HANDLER_______________________________
 
 //This function needs to sit in the global scope as it inherits its context from the click event.
 const processClick = function(clickEvent) {
   if (!moveObject.activeBox1) {
     moveObject.activeBox1 = clickEvent.target;
-    $(clickEvent.target).text('CSS');
+    $(clickEvent.target).addClass('selected');
   } else {
     moveObject.activeBox2 = clickEvent.target;
+    $(clickEvent.target).addClass('selected');
     if (moveObject.areAdjacent()) {
       moveObject.triggerMoveEvent();
     }
-    moveObject.deactivateBoxes();
+    window.setTimeout(() => {
+      moveObject.deactivateBoxes();
+    }, 250);
   }
 };
 
