@@ -28,6 +28,7 @@ body {
       padding: 0;
       border-radius: 6px;
       border: 5px solid black;
+      transition: top 0.5s;
     }
     div.selected {
       border: 5px solid white;

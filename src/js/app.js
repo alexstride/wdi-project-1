@@ -1,7 +1,6 @@
 const COLORS = ['#5679f7', '#f78a0e', '#d6d6d6', '#d60202', '#8f14d1', '#13c600', '#fcf63c'];
 const WIDTH = 8;
 const HEIGHT = WIDTH;
-let score = 0;
 
 //________________GRID OBJECT_______________________________
 const gridObject = {
@@ -37,6 +36,11 @@ const gridObject = {
   },
 
   swapSquares: function(coordinate1, coordinate2) {
+    //makes the change in the DOM and on the back end.
+    const value1 = gridObject.valueArray[coordinate1[1]][coordinate1[0]];
+    const value2 = gridObject.valueArray[coordinate2[1]][coordinate2[0]];
+    gridObject.valueArray[coordinate1[1]][coordinate1[0]] = value2;
+    gridObject.valueArray[coordinate2[1]][coordinate2[0]] = value1;
     const $box1 = $(this.getElementByCoordinate(coordinate1));
     const $box2 = $(this.getElementByCoordinate(coordinate2));
     const dataId1 = $box1.attr('data-id');
@@ -45,6 +49,7 @@ const gridObject = {
     $box1.css('background-color', this.colorArray[dataId2]);
     $box2.attr('data-id', dataId1);
     $box2.css('background-color', this.colorArray[dataId1]);
+    console.log('Array after the swap: ', gridObject.valueArray);
   },
 
   initializeValueArray: function () {
@@ -63,6 +68,7 @@ const gridObject = {
       this.valueArray = this.generateNewValueArray(initialMatches);
       initialMatches = this.checkGrid();
     }
+    console.log(this.valueArray);
   },
 
   initializeElementArray: function() {
@@ -84,7 +90,10 @@ const gridObject = {
     const flatGridArray = gridObject.returnFlat();
     //looping over the dom elements for the boxes applyng the colors
     for (let i = 0; i < this.$elementArray.length; i++) {
-      $(this.$elementArray[i]).css('background-color', this.colorArray[flatGridArray[i]]).attr('data-id', flatGridArray[i]);
+      $(this.$elementArray[i])
+        .css('background-color', this.colorArray[flatGridArray[i]])
+        .attr('data-id', flatGridArray[i])
+        .text(flatGridArray[i]);
     }
   },
 
@@ -159,10 +168,7 @@ const gridObject = {
 
     const columns = [];
     for (let i = 0; i < this.width; i++) {
-      //console.log('Value of coordinateArray: ', coordinateArray);
       const positionsToRemove = coordinateArray.filter((coordinate) => coordinate[0] === i).map((coordinate) => coordinate[1]);
-      // console.log('positions being removed from column: ');
-      // console.log(positionsToRemove);
       const newValues = positionsToRemove.map(() => Math.floor(Math.random() * this.colorArray.length));
       columns.push(this.updateColumnForMatch(gridObject.getColumn(i), positionsToRemove, newValues));
     }
@@ -193,21 +199,17 @@ const gridObject = {
     $(box).remove();
   },
   //################################################################################################################
-  generateWithFrontEnd: function(coordinateArray) {
+  generateWithFrontEnd: function(coordinateArray, grid) {
     //Build a new grid object, updating the front end along the way.
     //coordinateArray: an array of the coordinates of cells which have been matched and need to be removed.
 
     //Go through the columns and add the newly generated squares to the top of each column.
-    score = score + coordinateArray.length;
-    $score.text(score);
     const columns = [];
     for (let i = 0; i < this.width; i++) {
-      //console.log('Value of coordinateArray: ', coordinateArray);
       const positionsToRemove = coordinateArray.filter((coordinate) => coordinate[0] === i).map((coordinate) => coordinate[1]);
 
       //Creating an array of random new values, to be fed in from the top of the grid
       const newValues = positionsToRemove.map(() => Math.floor(Math.random() * this.colorArray.length));
-      console.log('logging new values', newValues);
       //Looping over the new values, creating new boxes and appending them to the gridWrapper div
       for (let l = 0; l < newValues.length; l++) {
         const newBox = this.createNewBox(newValues[l], i, l - newValues.length);
@@ -304,6 +306,7 @@ const matchHandler = {
 
     //Add the new squares to the top of the relevant rows, with suitable positions.
     gridObject.valueArray = gridObject.generateWithFrontEnd(matchCoordinates);
+    console.log(gridObject.valueArray);
     //Burn the matched squares on the board.
 
     //Update the positions of all of the squares in the changed columns, so that they fall and settle in the right places.
@@ -344,8 +347,8 @@ function clone2D(oldArray) {
   return oldArray.map(element => element.slice());
 }
 
+
 $(function() {
-  const $score = $('.score');
   gridObject.initializeValueArray();
   gridObject.initializeElementArray();
   gridObject.initializeColors();
