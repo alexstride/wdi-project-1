@@ -144,10 +144,7 @@ const gridObject = {
     //column: the values from the old column
     //positionArray: An array of the positions within the column to be removed.
     //newValues: An array of randomly generated new values to begin the column with. ORDER IMPORTANT
-    const newColumn = [];
-    positionArray.forEach(() => {
-      newColumn.push(Math.floor(Math.random()*this.colorArray.length));
-    });
+    const newColumn = newValues.slice();
     column.filter((element, index) => positionArray.indexOf(index) === -1).forEach((element) => {
       newColumn.push(element);
     });
@@ -162,7 +159,8 @@ const gridObject = {
       const positionsToRemove = coordinateArray.filter((coordinate) => coordinate[0] === i).map((coordinate) => coordinate[1]);
       // console.log('positions being removed from column: ');
       // console.log(positionsToRemove);
-      columns.push(this.updateColumnForMatch(gridObject.getColumn(i), positionsToRemove));
+      const newValues = positionsToRemove.map(() => Math.floor(Math.random() * this.colorArray.length));
+      columns.push(this.updateColumnForMatch(gridObject.getColumn(i), positionsToRemove, newValues));
     }
 
     //Now need to transpose the array, because it should be an array of rows.
