@@ -9,6 +9,7 @@ const gridObject = {
   height: HEIGHT,
   valueArray: null, //2D array of number values, representing colors
   $elementArray: null, //1D array of .box elements on the page
+  $gridWrapper: null,
   activeBox1: null,
   activeBox2: null,
   coord2Index: function(coordinate) {
@@ -64,6 +65,7 @@ const gridObject = {
 
   initializeElementArray: function() {
     this.$elementArray = $('div.box');
+    this.$gridWrapper = $('.game-wrapper');
     //give each element an id number, from 0 to 63.
     for (let i = 0; i < this.$elementArray.length; i ++) {
       $(this.$elementArray[i]).attr('id', i).css({
@@ -151,7 +153,7 @@ const gridObject = {
     return newColumn;
   },
 
-  generateNewValueArray: function(coordinateArray) {
+  generateNewValueArray: function(coordinateArray, screenUpdate=false) {
 
     const columns = [];
     for (let i = 0; i < this.width; i++) {
@@ -162,7 +164,6 @@ const gridObject = {
       const newValues = positionsToRemove.map(() => Math.floor(Math.random() * this.colorArray.length));
       columns.push(this.updateColumnForMatch(gridObject.getColumn(i), positionsToRemove, newValues));
     }
-
     //Now need to transpose the array, because it should be an array of rows.
     const result = [];
     for(let j = 0; j < this.height; j++) {
@@ -175,6 +176,17 @@ const gridObject = {
     return result;
   },
 
+  createNewBox: function(colorValue, x, y) {
+    const newBox = $('<div>', {
+      'data-id': colorValue,
+      'data-x': x,
+      'data-y': y
+    })[0];
+    this.setBoxPosition($(newBox), [x, y]);
+    $(newBox).addClass('box').css('background-color', this.colorArray[colorValue]);
+    return newBox;
+  },
+
   generateWithFrontEnd: function(coordinateArray) {
     //Build a new grid object, updating the front end along the way.
     //coordinateArray: an array of the coordinates of cells which have been matched and need to be removed.
@@ -184,11 +196,27 @@ const gridObject = {
     for (let i = 0; i < this.width; i++) {
       //console.log('Value of coordinateArray: ', coordinateArray);
       const positionsToRemove = coordinateArray.filter((coordinate) => coordinate[0] === i).map((coordinate) => coordinate[1]);
-      // console.log('positions being removed from column: ');
-      // console.log(positionsToRemove);
-      const newBoxes =
-      columns.push(this.updateColumnForMatch(gridObject.getColumn(i), positionsToRemove));
+
+      //Creating an array of random new values, to be fed in from the top of the grid
+      const newValues = positionsToRemove.map(() => Math.floor(Math.random() * this.colorArray.length));
+      console.log('logging new values', newValues);
+      //Looping over the new values, creating new boxes and appending them to the gridWrapper div
+      for (let l = 0; l < newValues.length; l++) {
+        const newBox = this.createNewBox(newValues[l], i, l - newValues.length);
+        this.$gridWrapper.append(newBox);
+      }
+      columns.push(this.updateColumnForMatch(gridObject.getColumn(i), positionsToRemove, newValues));
     }
+    //Now need to transpose the array, because it should be an array of rows.
+    const result = [];
+    for(let j = 0; j < this.height; j++) {
+      const newRow = [];
+      for(let k = 0; k < this.width; k ++) {
+        newRow.push(columns[k][j]);
+      }
+      result.push(newRow);
+    }
+    return result;
   }
 
 }; //______END GRID OBJECT_______________________________________
@@ -250,7 +278,7 @@ const matchHandler = {
     gridObject.swapSquares(this.pos1, this.pos2);
 
     //Add the new squares to the top of the relevant rows, with suitable positions.
-
+    gridObject.generateWithFrontEnd(matchCoordinates);
     //Burn the matched squares on the board.
 
     //Update the positions of all of the squares in the changed columns, so that they fall and settle in the right places.
