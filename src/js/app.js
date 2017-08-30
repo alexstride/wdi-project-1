@@ -6,10 +6,14 @@ let score = 0;
 
 const gameObject = {
   gameActive: false,
-  score: 0
+  score: 0,
+  timer: 0
 };
 
 $(function() {
+  const $score = $('.score-value');
+  const $startScreen = $('.start-screen');
+  const $startButton = $('.start-button');
 
   //________________GRID OBJECT_______________________________
   const gridObject = {
@@ -378,8 +382,10 @@ $(function() {
   gridObject.initializeElementArray();
   gridObject.initializeColors();
   gridObject.$gridWrapper.on('click', '.box', processClick);
-  const $score = $('.score-value');
   $score.text(gameObject.score);
+  $startButton.on('click', () => {
+    $startScreen.css('visibility', 'hidden');
+  });
 
   $(document).on('userMove', matchHandler.processMove);
 });
