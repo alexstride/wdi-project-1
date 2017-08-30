@@ -1,4 +1,4 @@
-const COLORS = ['#5679f7', '#f78a0e', '#d6d6d6', '#d60202', '#8f14d1', '#13c600', '#fcf63c'];
+const COLORS = ['#5679f7', '#d6d6d6', '#d60202', '#8f14d1', '#13c600', '#fcf63c'];//, '#f78a0e'
 const colorNames = ['blue', 'orange', 'grey', 'red', 'pruple', 'green', 'yellow'];
 const WIDTH = 8;
 const HEIGHT = WIDTH;
