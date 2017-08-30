@@ -76,7 +76,7 @@ $(function() {
       this.valueArray = resultArray;
       let initialMatches = this.checkGrid();
       while (initialMatches.length > 0) {
-        this.valueArray = this.generateNewValueArray(initialMatches);
+        this.valueArray = this.generateWithFrontEnd(initialMatches, false);
         initialMatches = this.checkGrid();
       }
     },
@@ -173,26 +173,6 @@ $(function() {
       return newColumn;
     },
 
-    generateNewValueArray: function(coordinateArray) {
-
-      const columns = [];
-      for (let i = 0; i < this.width; i++) {
-        const positionsToRemove = coordinateArray.filter((coordinate) => coordinate[0] === i).map((coordinate) => coordinate[1]);
-        const newValues = positionsToRemove.map(() => Math.floor(Math.random() * this.colorArray.length));
-        columns.push(this.updateColumnForMatch(gridObject.getColumn(i), positionsToRemove, newValues));
-      }
-      //Now need to transpose the array, because it should be an array of rows.
-      const result = [];
-      for(let j = 0; j < this.height; j++) {
-        const newRow = [];
-        for(let k = 0; k < this.width; k ++) {
-          newRow.push(columns[k][j]);
-        }
-        result.push(newRow);
-      }
-      return result;
-    },
-
     createNewBox: function(colorValue, x, y) {
       console.log(`Creating new box at [${x},${y}], color: ${colorNames[colorValue]}`);
       const newBox = $('<div>', {
@@ -232,7 +212,7 @@ $(function() {
     },
 
     //###############################################################################################################
-    generateWithFrontEnd: function(coordinateArray) {
+    generateWithFrontEnd: function(coordinateArray, screenUpdate=true) {
       //Build a new grid object, updating the front end along the way.
       //coordinateArray: an array of the coordinates of cells which have been matched and need to be removed.
 
@@ -245,36 +225,39 @@ $(function() {
 
         //Creating an array of random new values, to be fed in from the top of the grid
         const newValues = positionsToRemove.map(() => Math.floor(Math.random() * this.colorArray.length));
-        //Looping over new values, creating boxes and appending them to parent div. Calls: createNewBox.
-        for (let l = 0; l < newValues.length; l++) {
-          const newBox = this.createNewBox(newValues[l], i, l - newValues.length);
-          this.$gridWrapper.append(newBox);
+
+        if (screenUpdate) {
+          //Looping over new values, creating boxes and appending them to parent div. Calls: createNewBox.
+          for (let l = 0; l < newValues.length; l++) {
+            const newBox = this.createNewBox(newValues[l], i, l - newValues.length);
+            this.$gridWrapper.append(newBox);
+          }
         }
 
+        //pushing in the end-state for the matrix calculated independently of the screen state
         columns.push(this.updateColumnForMatch(gridObject.getColumn(i), positionsToRemove, newValues));
       } //End looping over columns
 
       //Removing the boxes of the elements which need to disappear. Calls;
       //finding all of the boxes which need to move, changing their y value and telling them to move.
 
-      //Removing the boxes of the match
-      const boxesToRemove = coordinateArray.map(coordinate => {
-        return gridObject.getElementByCoordinate(coordinate);
-      });
-      console.log('removing boxes', coordinateArray);
-      boxesToRemove.forEach((box) => $(box).remove());
+      if (screenUpdate) {
+        //Removing the boxes of the match
+        const boxesToRemove = coordinateArray.map(coordinate => {
+          return gridObject.getElementByCoordinate(coordinate);
+        });
+        console.log('removing boxes', coordinateArray);
+        boxesToRemove.forEach((box) => $(box).remove());
+        //increasing the score by the number of boxes which have been matched
+        score += coordinateArray.length;
+        $('.score-value').text(score);
 
-      //increasing the score by the number of boxes which have been matched
-      score += coordinateArray.length;
-      $('.score-value').text(score);
+        //Waiting before making boxes fall (to allow animation to take effect)
+        setTimeout(() => {
+          this.tellBoxesToMove(coordinateArray);
+        }, 100);
 
-      setTimeout(() => {
-        this.tellBoxesToMove(coordinateArray);
-      }, 100);
-
-      //Need to now rescan for the element array, as things have changed.
-      this.$elementArray = $('div.box');
-
+      }
 
       //Now need to transpose the array, because it should be an array of rows.
       const result = [];
