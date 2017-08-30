@@ -2,6 +2,7 @@ const COLORS = ['#5679f7', '#f78a0e', '#d6d6d6', '#d60202', '#8f14d1', '#13c600'
 const colorNames = ['blue', 'orange', 'grey', 'red', 'pruple', 'green', 'yellow'];
 const WIDTH = 8;
 const HEIGHT = WIDTH;
+let score = 0;
 
 //Bug buster functions
 function checkAllBoxesInRightPlace() {
@@ -36,6 +37,11 @@ function checkBackGroundMatrix() {
     console.assert(gridObject.valueArray[yCoor][xCoor] === colorNum, `[${xCoor},${yCoor}] should be ${colorNum}, but matrix value: ${gridObject.valueArray[yCoor][xCoor]}`);
   });
 }
+
+const gameObject = {
+  gameActive: false,
+  score: 0
+};
 
 //________________GRID OBJECT_______________________________
 const gridObject = {
@@ -293,6 +299,10 @@ const gridObject = {
     console.log('removing boxes', coordinateArray);
     boxesToRemove.forEach((box) => $(box).remove());
 
+    //increasing the score by the number of boxes which have been matched
+    score += coordinateArray.length;
+    $('.score-value').text(score);
+
     setTimeout(() => {
       this.tellBoxesToMove(coordinateArray);
     }, 100);
@@ -422,6 +432,8 @@ $(function() {
   gridObject.initializeElementArray();
   gridObject.initializeColors();
   gridObject.$gridWrapper.on('click', '.box', processClick);
+  const $score = $('.score-value');
+  $score.text(gameObject.score);
 
   $(document).on('userMove', matchHandler.processMove);
 });
