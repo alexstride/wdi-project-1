@@ -1,4 +1,5 @@
 const COLORS = ['#5679f7', '#f78a0e', '#d6d6d6', '#d60202', '#8f14d1', '#13c600', '#fcf63c'];
+const colorNames = ['blue', 'orange', 'grey', 'red', 'pruple', 'green', 'yellow'];
 const WIDTH = 8;
 const HEIGHT = WIDTH;
 
@@ -51,6 +52,7 @@ const gridObject = {
   },
 
   getElementByCoordinate: function(coord) {
+    console.log('getElementByCoordinate: ', coord);
     const result = $(`.box[data-x=${coord[0]}][data-y=${coord[1]}]`)[0];
     if (result) {
       return result;
@@ -221,16 +223,17 @@ const gridObject = {
   },
 
   createNewBox: function(colorValue, x, y) {
+    console.log(`Creating new box at [${x},${y}], color: ${colorNames[colorValue]}`);
     const newBox = $('<div>', {
       'data-id': colorValue,
       'data-x': x,
       'data-y': y
     })[0];
-    this.setBoxPosition($(newBox), [x, y]);
     $(newBox).addClass('box').css({
       'background-color': this.colorArray[colorValue],
       'transition': 'top 0.5s'
     });
+    this.setBoxPosition($(newBox), [x, y]);
     return newBox;
   },
 
@@ -287,9 +290,12 @@ const gridObject = {
     const boxesToRemove = coordinateArray.map(coordinate => {
       return gridObject.getElementByCoordinate(coordinate);
     });
+    console.log('removing boxes', coordinateArray);
     boxesToRemove.forEach((box) => $(box).remove());
 
-    this.tellBoxesToMove(coordinateArray);
+    setTimeout(() => {
+      this.tellBoxesToMove(coordinateArray);
+    }, 100);
 
     //Need to now rescan for the element array, as things have changed.
     this.$elementArray = $('div.box');
@@ -363,11 +369,16 @@ const matchHandler = {
 
     //Add the new squares to the top of the relevant rows, with suitable positions.
     let remainingMatches = matchCoordinates;
-    while (remainingMatches.length > 0) {
-      gridObject.valueArray = gridObject.generateWithFrontEnd(matchCoordinates);
-      console.log('New array: ',gridObject.valueArray);
+    gridObject.valueArray = gridObject.generateWithFrontEnd(remainingMatches);
+    const interval = setInterval(() => {
+      console.log('Interval!');
       remainingMatches = gridObject.checkGrid(gridObject.valueArray);
-    }
+      if (remainingMatches.length === 0) {
+        clearInterval(interval);
+      } else {
+        gridObject.valueArray = gridObject.generateWithFrontEnd(remainingMatches);
+      }
+    }, 750);
 
   },
 

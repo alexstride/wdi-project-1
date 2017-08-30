@@ -21,6 +21,7 @@ body {
     width: $game-width;
     height: $game-width;
     border-radius: 20px;
+    overflow: hidden;
     div.box {
       position: absolute;
       height: $box-width - 10px;
