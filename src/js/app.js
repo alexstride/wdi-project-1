@@ -9,9 +9,9 @@ function checkAllBoxesInRightPlace() {
   const $boxArray = $('.box');
   $boxArray.each(function(index, element) {
     //Grabbing the coordinates from data atttributes
-    const xCoor = parseInt($(element).data('x'));
+    const xCoor = parseInt($(element).attr('data-x'));
     //console.log(`xCoor: ${xCoor}`);
-    const yCoor = parseInt($(element).data('y'));
+    const yCoor = parseInt($(element).attr('data-y'));
     //console.log(`xCoor: ${yCoor}`);
 
     //grabbing the positions from the css
@@ -21,6 +21,18 @@ function checkAllBoxesInRightPlace() {
     //console.log(`yPos: ${yPos}`);
     console.assert(xPos ===(xCoor* 54) + 2, 'Boxes are not all positioned correctly', element);
     console.assert(yPos === (yCoor * 54) + 2, 'Boxes are not all positioned correctly:', element);
+  });
+}
+
+function checkBackGroundMatrix() {
+  console.log('Checking that the background matrix matches the colors which are on the screen');
+  const $boxArray = $('.box');
+  $boxArray.each(function(index, element) {
+    //Grabbing the coordinates from data atttributes
+    const xCoor = parseInt($(element).attr('data-x'));
+    const yCoor = parseInt($(element).attr('data-y'));
+    const colorNum = parseInt($(element).attr('data-id'));
+    console.assert(gridObject.valueArray[yCoor][xCoor] === colorNum, `[${xCoor},${yCoor}] should be ${colorNum}, but matrix value: ${gridObject.valueArray[yCoor][xCoor]}`);
   });
 }
 
@@ -76,7 +88,6 @@ const gridObject = {
     $box1.css('background-color', this.colorArray[dataId2]);
     $box2.attr('data-id', dataId1);
     $box2.css('background-color', this.colorArray[dataId1]);
-    console.log('Array after the swap: ', gridObject.valueArray);
   },
 
   initializeValueArray: function () {
@@ -95,7 +106,6 @@ const gridObject = {
       this.valueArray = this.generateNewValueArray(initialMatches);
       initialMatches = this.checkGrid();
     }
-    console.log(this.valueArray);
   },
 
   initializeElementArray: function() {
@@ -119,8 +129,7 @@ const gridObject = {
     for (let i = 0; i < this.$elementArray.length; i++) {
       $(this.$elementArray[i])
         .css('background-color', this.colorArray[flatGridArray[i]])
-        .attr('data-id', flatGridArray[i])
-        .text(flatGridArray[i]);
+        .attr('data-id', flatGridArray[i]);
     }
   },
 
@@ -218,12 +227,38 @@ const gridObject = {
       'data-y': y
     })[0];
     this.setBoxPosition($(newBox), [x, y]);
-    $(newBox).addClass('box').css('background-color', this.colorArray[colorValue]);
+    $(newBox).addClass('box').css({
+      'background-color': this.colorArray[colorValue],
+      'transition': 'top 0.5s'
+    });
     return newBox;
   },
 
-  //################################################################################################################
-  generateWithFrontEnd: function(coordinateArray, persistToScreen=true) {
+  tellBoxesToMove: function(blankCoordinates) {
+    //Telling boxes to move down.
+    for (let i = 0; i < 8; i ++) {
+      //get all boxes in a certain column
+      const $boxesInColumn = $(`[data-x="${i}"]`);
+
+      //find all of the positions in that column which have been deleted:
+      const blankPositionsInColumn = blankCoordinates
+        .filter(coordinate => coordinate[0] === i)
+        .map((coordinate) => coordinate[1]);
+
+      //Looping through the boxes in the column and finding the y position
+      $boxesInColumn.each((index, element) => {
+        const yPosition = parseInt($(element).attr('data-y'));
+        //find the count of the numbers in blank positions which are greater than the box's y position
+        const valueToMoveBy = blankPositionsInColumn.filter(num => num > yPosition).length;
+        $(element).attr('data-y', yPosition + valueToMoveBy);
+        gridObject.setYPosition($(element), yPosition + valueToMoveBy);
+      });
+
+    }
+  },
+
+  //###############################################################################################################
+  generateWithFrontEnd: function(coordinateArray) {
     //Build a new grid object, updating the front end along the way.
     //coordinateArray: an array of the coordinates of cells which have been matched and need to be removed.
 
@@ -242,24 +277,23 @@ const gridObject = {
         this.$gridWrapper.append(newBox);
       }
 
-      //Removing the boxes of the elements which need to disappear. Calls;
-      const boxesToRemove = coordinateArray.map(coordinate => gridObject.getElementByCoordinate(coordinate));
-      boxesToRemove.forEach((box) => $(box).remove());
-      //finding all of the boxes which need to move, changing their y value and telling them to move.
-      const $boxesAbove = $(`[data-x="${i}"]`);
-      $boxesAbove.each(function() {
-        const yCoordinate = parseInt($(this).attr('data-y'));
-        const deltaY = yCoordinate + positionsToRemove.length;
-        if (yCoordinate < Math.min(...positionsToRemove)) {
-          $(this).attr('data-y', deltaY);
-          gridObject.setYPosition($(this), deltaY);
-        }
-      });
       columns.push(this.updateColumnForMatch(gridObject.getColumn(i), positionsToRemove, newValues));
     } //End looping over columns
 
+    //Removing the boxes of the elements which need to disappear. Calls;
+    //finding all of the boxes which need to move, changing their y value and telling them to move.
+
+    //Removing the boxes of the match
+    const boxesToRemove = coordinateArray.map(coordinate => {
+      return gridObject.getElementByCoordinate(coordinate);
+    });
+    boxesToRemove.forEach((box) => $(box).remove());
+
+    this.tellBoxesToMove(coordinateArray);
+
     //Need to now rescan for the element array, as things have changed.
     this.$elementArray = $('div.box');
+
 
     //Now need to transpose the array, because it should be an array of rows.
     const result = [];
@@ -281,12 +315,12 @@ const moveObject = {
   activeBox1: null,
   activeBox2: null,
   areAdjacent: function() {
-    return (Math.abs($(this.activeBox1).data('x') - $(this.activeBox2).data('x')) + Math.abs($(this.activeBox1).data('y') - $(this.activeBox2).data('y'))) === 1;
+    return (Math.abs(parseInt($(this.activeBox1).attr('data-x')) - parseInt($(this.activeBox2).attr('data-x'))) + Math.abs(parseInt($(this.activeBox1).attr('data-y')) - parseInt($(this.activeBox2).attr('data-y')))) === 1;
   },
 
   triggerMoveEvent: function() {
     //notify the grid object that there is now a change that needs to be handled and send through the coordinates of the squares which are being moved.
-    $(document).trigger('userMove', [[$(this.activeBox1).data('x'), $(this.activeBox1).data('y')], [$(this.activeBox2).data('x'), $(this.activeBox2).data('y')]]);
+    $(document).trigger('userMove', [[parseInt($(this.activeBox1).attr('data-x')), parseInt($(this.activeBox1).attr('data-y'))], [parseInt($(this.activeBox2).attr('data-x')), parseInt($(this.activeBox2).attr('data-y'))]]);
 
   },
   deactivateBoxes: function() {
@@ -376,7 +410,7 @@ $(function() {
   gridObject.initializeValueArray();
   gridObject.initializeElementArray();
   gridObject.initializeColors();
-  gridObject.$elementArray.on('click', processClick);
+  gridObject.$gridWrapper.on('click', '.box', processClick);
 
   $(document).on('userMove', matchHandler.processMove);
 });
