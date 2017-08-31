@@ -33,9 +33,10 @@ $(function() {
   const $finalScore = $('.final-score');
   const $scoreDiv = $('.score');
   const $firstBox = $('.box').eq(0);
-  const boxWidth = $firstBox.width();
+  const $gameWrapper = $('.game-wrapper');
   const boxBorder = parseInt($firstBox.css('border-left-width'));
   const boxGap = parseInt($firstBox.css('margin'));
+  const boxWidth = ($gameWrapper.width()/8) - (2 * (boxBorder + boxGap));
   const boxFootPrint = boxWidth + (2 * boxBorder) + (2 * boxGap);
 
   //________________GRID OBJECT_______________________________
