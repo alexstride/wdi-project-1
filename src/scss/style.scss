@@ -1,9 +1,9 @@
-$box-width: 40px;
+$game-width: 400px;
 $box-border: 3px;
 $box-margin: 2px;
-$total-box-width: $box-width + (2 * $box-border);
-$game-width: ($total-box-width + (2 * $box-margin)) * 8;
 $game-border: 20px;
+$box-width: ($game-width/8) - (2 * ($box-border + $box-margin));
+$total-box-width: $box-width + (2 * $box-border);
 $start-screen-color: rgba(0, 0, 0, 0.85);
 
 body {
