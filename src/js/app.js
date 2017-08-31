@@ -428,7 +428,7 @@ $(function() {
         'width': `${gameObject.timer}%`,
         'background-color': (gameObject.timer > 50 ? fadeGreenOrange(50, gameObject.timer-50) : fadeOrangeRed(50, gameObject.timer))
       });
-    }, 100);
+    }, 350);
   });
 
   $(document).on('userMove', matchHandler.processMove);
