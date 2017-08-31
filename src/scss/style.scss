@@ -11,12 +11,32 @@ $start-screen-color: rgba(0, 0, 0, 0.75);
   }
 
   50% {
-    transform: scale3d(1.5, 1.5, 1.5);
+    transform: scale3d(1.1, 1.1, 1.1);
   }
 
   to {
     transform: scale3d(1, 1, 1);
   }
+}
+
+@keyframes flash {
+  from, 50%, to {
+    opacity: 1;
+  }
+
+  25%, 75% {
+    opacity: 0;
+  }
+}
+
+.pulsing-slow {
+  animation: pulse 1.5s;
+  animation-iteration-count: infinite;
+}
+
+.flashing-fast {
+  animation: flash 0.5s;
+  animation-iteration-count: infinite;
 }
 
 body {

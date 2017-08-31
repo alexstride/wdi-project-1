@@ -82,8 +82,8 @@ $(function() {
       const value2 = gridObject.valueArray[coordinate2[1]][coordinate2[0]];
       gridObject.valueArray[coordinate1[1]][coordinate1[0]] = value2;
       gridObject.valueArray[coordinate2[1]][coordinate2[0]] = value1;
-      const $box1 = $(this.getElementByCoordinate(coordinate1)); //!! function is broken!
-      const $box2 = $(this.getElementByCoordinate(coordinate2)); //!!
+      const $box1 = $(this.getElementByCoordinate(coordinate1));
+      const $box2 = $(this.getElementByCoordinate(coordinate2));
       const dataId1 = $box1.attr('data-id');
       const dataId2 = $box2.attr('data-id');
       $box1.attr('data-id', dataId2);
@@ -431,6 +431,7 @@ $(function() {
     gameObject.timer = 100;
     gameObject.score = 0;
     $startScreen.css('visibility', 'hidden');
+    $timerBar.removeClass('flashing-fast');
     $timerBar.css('visibility', 'visible');
     $scoreDiv.css('visibility', 'visible');
     $score.text(gameObject.score);
@@ -439,6 +440,8 @@ $(function() {
       if (gameObject.timer === 0) {
         gameOver();
         clearInterval(interval);
+      } else if (gameObject.timer === 20) {
+        $timerBar.addClass('flashing-fast');
       }
       $timerBar.css({
         'width': `${gameObject.timer}%`,
