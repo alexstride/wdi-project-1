@@ -271,7 +271,12 @@ $(function() {
         boxesToRemove.forEach((box) => $(box).remove());
         //increasing the score by the number of boxes which have been matched
         gameObject.score += coordinateArray.length;
-        gameObject.timer += coordinateArray.length;
+        if (gameObject.timer < 100 - ((coordinateArray.length) * 4)) {
+          gameObject.timer += (coordinateArray.length) * 4;
+        } else {
+          gameObject.timer = 100;
+        }
+
         $('.score-value').text(gameObject.score);
 
         //Waiting before making boxes fall (to allow animation to take effect)
@@ -429,7 +434,7 @@ $(function() {
         'width': `${gameObject.timer}%`,
         'background-color': (gameObject.timer > 50 ? fadeGreenOrange(50, gameObject.timer-50) : fadeOrangeRed(50, gameObject.timer))
       });
-    }, 350);
+    }, 150);
   });
 
   $(document).on('userMove', matchHandler.processMove);
