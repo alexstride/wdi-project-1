@@ -271,6 +271,7 @@ $(function() {
         boxesToRemove.forEach((box) => $(box).remove());
         //increasing the score by the number of boxes which have been matched
         gameObject.score += coordinateArray.length;
+        gameObject.timer += coordinateArray.length;
         $('.score-value').text(gameObject.score);
 
         //Waiting before making boxes fall (to allow animation to take effect)
