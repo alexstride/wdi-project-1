@@ -1,5 +1,8 @@
-$box-width: 50px;
-$game-width: ($box-width + 4px) * 8;
+$box-width: 40px;
+$box-margin: 5px;
+$total-box-width: $box-width + (2 * $box-margin);
+$game-width: ($total-box-width + 4px) * 8;
+$game-border: 20px;
 $start-screen-color: rgba(0, 0, 0, 0.85);
 
 body {
@@ -24,12 +27,12 @@ h1 {
   justify-content: space-around;
   div.game-wrapper {
     background-color: black;
-    border: 20px solid black;
+    border: $game-border solid black;
     position: relative;
     margin: 5px auto;
     width: $game-width;
     height: $game-width;
-    border-radius: 20px;
+    border-radius: $game-border;
     overflow: hidden;
     div.start-screen {
       display: flex;
@@ -37,11 +40,11 @@ h1 {
       justify-content: center;
       flex-direction: column;
       background-color: $start-screen-color;
-      border: 20px solid $start-screen-color;
-      border-radius: 20px;
+      border: $game-border solid $start-screen-color;
+      border-radius: $game-border;
       position: absolute;
-      top: -20px;
-      left: -20px;
+      top: -$game-border;
+      left: -$game-border;
       width: $game-width;
       height: $game-width;
       z-index: 2;
@@ -61,7 +64,7 @@ h1 {
         align-items: center;
         justify-content: center;
         background-color: rgb(248, 63, 66);
-        border-radius: 20px;
+        border-radius: $game-border;
         border: 0;
 
         p {
@@ -81,21 +84,21 @@ h1 {
     }
     div.box {
       position: absolute;
-      height: $box-width - 10px;
-      width: $box-width - 10px;
+      height: $box-width;
+      width: $box-width;
       padding: 0;
       border-radius: 6px;
-      border: 5px solid black;
+      border: $box-margin solid black;
       transition: top 0.5s;
     }
     div.selected {
-      border: 5px solid white;
+      border: $box-margin solid white;
     }
 
   }
 
   .score {
-    width: 416px;
+    width: $game-width;
     display: flex;
     align-items: flex-start;
     font-family: 'Comfortaa', sans-serif;
@@ -108,7 +111,7 @@ h1 {
     }
   }
   .timer-container {
-    width: $game-width + 40px;
+    width: $game-width + (2 * $game-border);
     height: 10px;
     margin: 10px 0;
     visibility: hidden;
