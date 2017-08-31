@@ -14,12 +14,14 @@
     "src": {
       "js": "src/js/",
       "scss": "src/scss/",
-      "images": "src/images/"
+      "images": "src/images/",
+      "audio": "src/audio/"
     },
     "dest": {
       "js": "public/js/",
       "css": "public/css/",
-      "images": "public/images/"
+      "images": "public/images/",
+      "audio": "public/audio/"
     },
     "main": {
       "js": "app.js",
@@ -39,7 +41,8 @@
       "css": "**/*.css",
       "scss": "**/*.scss",
       "html": "**/*.html",
-      "images": "**/*.{png,jpg,jpeg,gif,ico}"
+      "images": "**/*.{png,jpg,jpeg,gif,ico}",
+      "audio": "**/*.{mp3,wav,webm,ogg}"
     }
   },
   "devDependencies": {
