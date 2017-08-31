@@ -29,6 +29,8 @@ $(function() {
   const $startScreen = $('.start-screen');
   const $startButton = $('.start-button');
   const $timerBar = $('.timer-bar');
+  const $finalScore = $('.final-score');
+  const $scoreDiv = $('.score');
 
   //________________GRID OBJECT_______________________________
   const gridObject = {
@@ -393,25 +395,40 @@ $(function() {
     return oldArray.map(element => element.slice());
   }
 
+  function gameOver() {
+    //Show a gameOver screen, which displays the user's score and asks if they want to play again.
+    $startScreen.css('visibility', 'visible');
+    $startButton.html('<p>Play Again</p>');
+    $finalScore.css('display', 'initial');
+    $finalScore.text(`Your score: ${gameObject.score}`);
+    $scoreDiv.css('visibility', 'hidden');
+  }
+
   gridObject.initializeValueArray();
   gridObject.initializeElementArray();
   gridObject.initializeColors();
   gridObject.$gridWrapper.on('click', '.box', processClick);
   $score.text(gameObject.score);
+
+  //Game start function
   $startButton.on('click', () => {
+    gameObject.timer = 100;
+    gameObject.score = 0;
     $startScreen.css('visibility', 'hidden');
     $timerBar.css('visibility', 'visible');
+    $scoreDiv.css('visibility', 'visible');
+    $score.text(gameObject.score);
     const interval = setInterval(() => {
       gameObject.timer -= 1;
       if (gameObject.timer === 0) {
-        console.log('Time has elapsed');
+        gameOver();
         clearInterval(interval);
       }
       $timerBar.css({
         'width': `${gameObject.timer}%`,
         'background-color': (gameObject.timer > 50 ? fadeGreenOrange(50, gameObject.timer-50) : fadeOrangeRed(50, gameObject.timer))
       });
-    }, 250);
+    }, 100);
   });
 
   $(document).on('userMove', matchHandler.processMove);
