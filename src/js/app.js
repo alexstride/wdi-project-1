@@ -38,6 +38,7 @@ $(function() {
   const boxGap = parseInt($firstBox.css('margin'));
   const boxWidth = ($gameWrapper.width()/8) - (2 * (boxBorder + boxGap));
   const boxFootPrint = boxWidth + (2 * boxBorder) + (2 * boxGap);
+  const audio = $('audio')[0];
 
   //________________GRID OBJECT_______________________________
   const gridObject = {
@@ -278,6 +279,8 @@ $(function() {
         boxesToRemove.forEach((box) => $(box).remove());
         //increasing the score by the number of boxes which have been matched
         gameObject.score += coordinateArray.length;
+        audio.play();
+
         if (gameObject.timer < 100 - ((coordinateArray.length) * 4)) {
           gameObject.timer += (coordinateArray.length) * 4;
         } else {
