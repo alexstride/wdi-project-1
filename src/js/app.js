@@ -254,7 +254,7 @@ $(function() {
         boxesToRemove.forEach((box) => $(box).remove());
         //increasing the score by the number of boxes which have been matched
         gameObject.score += coordinateArray.length;
-        $('.score-value').text(score);
+        $('.score-value').text(gameObject.score);
 
         //Waiting before making boxes fall (to allow animation to take effect)
         setTimeout(() => {
@@ -392,7 +392,9 @@ $(function() {
         console.log('Time has elapsed');
         clearInterval(interval);
       }
-      $timerBar.css('width', `${gameObject.timer}%`);
+      $timerBar.css({
+        'width': `${gameObject.timer}%`
+      });
     }, 500);
   });
 
