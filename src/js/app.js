@@ -24,17 +24,19 @@ function fadeOrangeRed(increments, stage) {
   return fadeColor(214, 2, 2, 247, 138, 14, increments, stage);
 }
 
+
 $(function() {
-  const boxWidth = 40;
-  const boxBorder = 5;
-  const boxGap = 2;
-  const boxFootPrint = boxWidth + (2 * boxBorder) + (2 * boxGap);
   const $score = $('.score-value');
   const $startScreen = $('.start-screen');
   const $startButton = $('.start-button');
   const $timerBar = $('.timer-bar');
   const $finalScore = $('.final-score');
   const $scoreDiv = $('.score');
+  const $firstBox = $('.box').eq(0);
+  const boxWidth = $firstBox.width();
+  const boxBorder = parseInt($firstBox.css('border-left-width'));
+  const boxGap = parseInt($firstBox.css('margin'));
+  const boxFootPrint = boxWidth + (2 * boxBorder) + (2 * boxGap);
 
   //________________GRID OBJECT_______________________________
   const gridObject = {
@@ -60,15 +62,15 @@ $(function() {
     setBoxPosition: function($box, coordinate) {
       //box: jquery element
       $box.css({
-        'top': `${(coordinate[1] * boxFootPrint) + boxGap}px`,
-        'left': `${(coordinate[0]* boxFootPrint) + boxGap}px`
+        'top': `${(coordinate[1] * boxFootPrint)}px`,
+        'left': `${(coordinate[0]* boxFootPrint)}px`
       });
     },
 
     setYPosition: function($box, yPos) {
       //box: jquery element
       $box.css({
-        'top': `${(yPos * boxFootPrint) + boxGap}px`
+        'top': `${(yPos * boxFootPrint)}px`
       });
     },
 
@@ -112,8 +114,8 @@ $(function() {
       //give each element an id number, from 0 to 63.
       for (let i = 0; i < this.$elementArray.length; i ++) {
         $(this.$elementArray[i]).css({
-          'top': `${(Math.floor(i/this.width) * boxFootPrint) + boxGap}px`,
-          'left': `${((i%this.width) * boxFootPrint) + boxGap}px`
+          'top': `${(Math.floor(i/this.width) * boxFootPrint)}px`,
+          'left': `${((i%this.width) * boxFootPrint)}px`
         });
       }
       //assign each element a top and left position to put it in the right place in the grid.

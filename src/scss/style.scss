@@ -1,7 +1,8 @@
 $box-width: 40px;
-$box-border: 5px;
+$box-border: 3px;
+$box-margin: 2px;
 $total-box-width: $box-width + (2 * $box-border);
-$game-width: ($total-box-width + 4px) * 8;
+$game-width: ($total-box-width + (2 * $box-margin)) * 8;
 $game-border: 20px;
 $start-screen-color: rgba(0, 0, 0, 0.85);
 
@@ -90,6 +91,7 @@ h1 {
       border-radius: 6px;
       border: $box-border solid black;
       transition: top 0.5s;
+      margin: $box-margin;
     }
     div.selected {
       border: $box-border solid white;
