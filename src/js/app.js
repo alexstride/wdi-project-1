@@ -25,6 +25,10 @@ function fadeOrangeRed(increments, stage) {
 }
 
 $(function() {
+  const boxWidth = 40;
+  const boxBorder = 5;
+  const boxGap = 2;
+  const boxFootPrint = boxWidth + (2 * boxBorder) + (2 * boxGap);
   const $score = $('.score-value');
   const $startScreen = $('.start-screen');
   const $startButton = $('.start-button');
@@ -56,15 +60,15 @@ $(function() {
     setBoxPosition: function($box, coordinate) {
       //box: jquery element
       $box.css({
-        'top': `${(coordinate[1] * 54) + 2}px`,
-        'left': `${(coordinate[0]* 54) + 2}px`
+        'top': `${(coordinate[1] * boxFootPrint) + boxGap}px`,
+        'left': `${(coordinate[0]* boxFootPrint) + boxGap}px`
       });
     },
 
     setYPosition: function($box, yPos) {
       //box: jquery element
       $box.css({
-        'top': `${(yPos * 54) + 2}px`
+        'top': `${(yPos * boxFootPrint) + boxGap}px`
       });
     },
 
@@ -108,8 +112,8 @@ $(function() {
       //give each element an id number, from 0 to 63.
       for (let i = 0; i < this.$elementArray.length; i ++) {
         $(this.$elementArray[i]).css({
-          'top': `${(Math.floor(i/this.width) * 54) + 2}px`,
-          'left': `${((i%this.width) * 54) + 2}px`
+          'top': `${(Math.floor(i/this.width) * boxFootPrint) + boxGap}px`,
+          'left': `${((i%this.width) * boxFootPrint) + boxGap}px`
         });
       }
       //assign each element a top and left position to put it in the right place in the grid.

@@ -1,6 +1,6 @@
 $box-width: 40px;
-$box-margin: 5px;
-$total-box-width: $box-width + (2 * $box-margin);
+$box-border: 5px;
+$total-box-width: $box-width + (2 * $box-border);
 $game-width: ($total-box-width + 4px) * 8;
 $game-border: 20px;
 $start-screen-color: rgba(0, 0, 0, 0.85);
@@ -88,11 +88,11 @@ h1 {
       width: $box-width;
       padding: 0;
       border-radius: 6px;
-      border: $box-margin solid black;
+      border: $box-border solid black;
       transition: top 0.5s;
     }
     div.selected {
-      border: $box-margin solid white;
+      border: $box-border solid white;
     }
 
   }
