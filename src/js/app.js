@@ -282,7 +282,7 @@ $(function() {
         //Waiting before making boxes fall (to allow animation to take effect)
         setTimeout(() => {
           this.tellBoxesToMove(coordinateArray);
-        }, 100);
+        }, 150);
 
       }
 
