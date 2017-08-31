@@ -9,6 +9,21 @@ const gameObject = {
   timer: 100
 };
 
+function fadeColor(fromR, fromG, fromB, targetR, targetG, targetB, increments, stage) {
+  const r = fromR + (targetR-fromR)/increments*stage;
+  const g = fromG + (targetG-fromG)/increments*stage;
+  const b = fromB + (targetB-fromB)/increments*stage;
+  return `rgb(${Math.floor(r)}, ${Math.floor(g)}, ${Math.floor(b)})`;
+}
+
+function fadeGreenOrange(increments, stage) {
+  return fadeColor(247, 138, 14, 19, 198, 0, increments, stage);
+}
+
+function fadeOrangeRed(increments, stage) {
+  return fadeColor(214, 2, 2, 247, 138, 14, increments, stage);
+}
+
 $(function() {
   const $score = $('.score-value');
   const $startScreen = $('.start-screen');
@@ -393,9 +408,10 @@ $(function() {
         clearInterval(interval);
       }
       $timerBar.css({
-        'width': `${gameObject.timer}%`
+        'width': `${gameObject.timer}%`,
+        'background-color': (gameObject.timer > 50 ? fadeGreenOrange(50, gameObject.timer-50) : fadeOrangeRed(50, gameObject.timer))
       });
-    }, 500);
+    }, 250);
   });
 
   $(document).on('userMove', matchHandler.processMove);
