@@ -447,7 +447,7 @@ $(function() {
         'width': `${gameObject.timer}%`,
         'background-color': (gameObject.timer > 50 ? fadeGreenOrange(50, gameObject.timer-50) : fadeOrangeRed(50, gameObject.timer))
       });
-    }, 250);
+    }, 150);
   });
 
   $(document).on('userMove', matchHandler.processMove);
