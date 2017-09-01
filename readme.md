@@ -9,24 +9,24 @@
 
 ### Installation & Setup
 
-####Run Locally
+#### Run Locally
 
 - Download or clone the [Github repo](https://github.com/alexstride/wdi-project-1)
 - Run `yarn` in the terminal to install dependencies
 - Run `gulp` in the terminal to compile the source code and open in browser
 
-####View Online
+#### View Online
 
 - [View on Heroku](http://mosaic-game-app.herokuapp.com/)
 - [View on Github](https://github.com/alexstride/wdi-project-1)
 
-###Description
+### Description
 
 The project was to build a Javascript browser game and I chose to build a verison of a classic pattern match game, where the objective is to swap around colored tiles to create matching lines of three or more of the same color. 
 
 A timer counts down throughout the game and when a match is made the player both gains points (equal to the number of tiles matched) and has time added to the timer, to allow them to continue playing.
 
-###Technologies used
+### Technologies used
 
 The list of the languages, frameworks, lib used in the project:
 
@@ -40,7 +40,7 @@ The list of the languages, frameworks, lib used in the project:
 - Github
 - Heroku
 
-###Challenges faced
+### Challenges faced
 
 The main challenge was allowing the state of the game to update in a manner which would allow the blocks to be animated to look as though they were falling into place. As the bulk of the checking for matches is carried out on a two-dimensional array in the background, the challenge was to update both the background array and the representation of tiles in the DOM, using the same randomly generated colors to update both, without the two going out of sync.
 
