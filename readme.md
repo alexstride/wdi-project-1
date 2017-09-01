@@ -46,7 +46,7 @@ The main challenge was allowing the state of the game to update in a manner whic
 
 The solution I used was to work out how many random boxes needed to be generated to drop into each column and to position these boxes above the top of the game grid, where they are hidden. When the matched tiles are deleted, the boxes all have their new positions calculated and slide downwards with a simple CSS transition, giving the impression that thee are an unlimited number of blocks ready to drop into columns when they are needed. 
 
-###Rounding it off
+### Rounding it off
 
 Improvements that I would like to make to the project in the future would be:
 
