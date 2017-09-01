@@ -113,7 +113,6 @@ $(function() {
     initializeElementArray: function() {
       this.$elementArray = $('div.box');
       this.$gridWrapper = $('.game-wrapper');
-      //give each element an id number, from 0 to 63.
       for (let i = 0; i < this.$elementArray.length; i ++) {
         $(this.$elementArray[i]).css({
           'top': `${(Math.floor(i/this.width) * boxFootPrint)}px`,
@@ -391,7 +390,7 @@ $(function() {
   }; //____________END MATCH HANDLER_______________________________
 
   //This function needs to sit in the global scope as it inherits its context from the click event.
-  const processClick = function(clickEvent) {
+  function processClick(clickEvent) {
     if (!moveObject.activeBox1) {
       moveObject.activeBox1 = clickEvent.target;
       $(clickEvent.target).addClass('selected');
@@ -405,7 +404,7 @@ $(function() {
         moveObject.deactivateBoxes();
       }, 250);
     }
-  };
+  }
 
   function clone2D(oldArray) {
     return oldArray.map(element => element.slice());
@@ -420,6 +419,7 @@ $(function() {
     $scoreDiv.css('visibility', 'hidden');
   }
 
+  //This is where things start happening.
   gridObject.initializeValueArray();
   gridObject.initializeElementArray();
   gridObject.initializeColors();
@@ -447,7 +447,7 @@ $(function() {
         'width': `${gameObject.timer}%`,
         'background-color': (gameObject.timer > 50 ? fadeGreenOrange(50, gameObject.timer-50) : fadeOrangeRed(50, gameObject.timer))
       });
-    }, 150);
+    }, 250);
   });
 
   $(document).on('userMove', matchHandler.processMove);
