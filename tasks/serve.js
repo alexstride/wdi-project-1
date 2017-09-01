@@ -3,7 +3,7 @@ const browserSync      = require('browser-sync').create();
 
 const serve = () => {
   browserSync.init(null, {
-    server: { baseDir: './public' },
+    server: { baseDir: './' },
     files: ['public/**/*.*'],
     browser: 'google chrome',
     port: 7000,
